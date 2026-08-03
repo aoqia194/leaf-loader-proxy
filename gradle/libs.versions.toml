@@ -1,0 +1,9 @@
+[versions]
+dsljson = "2.0.2"
+shadow = "8.3.5"
+
+[libraries]
+dsljson = { module = "com.dslplatform:dsl-json", version.ref = "dsljson" }
+
+[plugins]
+shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }

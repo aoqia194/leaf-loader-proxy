@@ -1,0 +1,17 @@
+/*
+
+!/.github
+!/gradle
+!/src
+
+!/.cliff.toml
+!/.editorconfig
+!/.gitattributes
+!/.gitignore
+!/build.gradle.kts
+!/gradle.properties
+!/gradlew
+!/gradlew.bat
+!/LICENSE
+!/README.md
+!/settings.gradle.kts
