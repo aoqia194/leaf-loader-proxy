@@ -29,15 +29,6 @@ public class ClientEntrypoint {
         Utils.initLog(proxyJar.getParentFile());
         log("Initialised logging for leaf-loader-proxy.");
 
-        // Remove the proxy jar from the classpath ASAP
-        Utils.removeFromClasspath(s -> s.endsWith(proxyJar.getName()));
-
-        if (System.getProperty(Constants.Properties.LEAF_DISABLED) != null) {
-            log("Leaf was disabled, loading vanilla jar...");
-            loadVanillaJar(args, proxyJar);
-            return;
-        }
-
         final File gameJar = proxyJar.toPath().getParent().resolve("projectzomboid.jar").toFile();
 
         // If there's a better way to not hardcode this ID...
@@ -52,6 +43,9 @@ public class ClientEntrypoint {
             urls[i] = loaderJars[i].toURI().toURL();
         }
         urls[urls.length - 1] = gameJar.toURI().toURL();
+
+        // Remove the proxy jar from the classpath ASAP
+        Utils.removeFromClasspath(s -> s.endsWith(proxyJar.getName()));
 
         Utils.addToClasspath(Arrays.stream(urls).map(url -> {
             try {
@@ -126,32 +120,5 @@ public class ClientEntrypoint {
 
         final InstallerJson installerJson = JSON.deserialize(InstallerJson.class, jsonBytes, jsonBytes.length);
         return Objects.requireNonNull(installerJson).mainClass().client();
-    }
-
-    private static void loadVanillaJar(final String[] args, final File proxyJar) throws IOException,
-        ClassNotFoundException, NoSuchMethodException, IllegalAccessException {
-        final File loaderJar = proxyJar.toPath().getParent().resolve("projectzomboid.jar").toFile();
-        Utils.addToClasspath(loaderJar.getAbsolutePath());
-        log("Classpath is currently: " + System.getProperty(Constants.Properties.CLASS_PATH));
-
-        final URL[] urls = new URL[] { loaderJar.toURI().toURL() };
-        try (final URLClassLoader cl = new URLClassLoader(urls, ClassLoader.getPlatformClassLoader())) {
-            log("Classloader was created successfully.");
-
-            final Class<?> entrypoint = Class.forName(Constants.CLIENT_ENTRYPOINT, true, cl);
-            final Method entryMethod = entrypoint.getMethod("main", String[].class);
-
-            log("Invoking game entrypoint, have fun!");
-
-            Thread.currentThread().setContextClassLoader(cl);
-            entryMethod.invoke(null, (Object) args);
-        } catch (InvocationTargetException e) {
-            Throwable cause = e.getCause();
-            log("Failed on thread " + Thread.currentThread().getName()
-                + " with TCCL " + Thread.currentThread().getContextClassLoader());
-            log("Cause: " + cause);
-            cause.printStackTrace();
-            throw new RuntimeException(e);
-        }
     }
 }
