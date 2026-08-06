@@ -1,4 +1,4 @@
-package dev.aoqia.leaf.proxy;
+package dev.aoqia.leaf.proxy.json;
 
 import com.dslplatform.json.CompiledJson;
 

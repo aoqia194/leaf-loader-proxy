@@ -19,6 +19,7 @@ plugins {
 }
 
 dependencies {
+    implementation(libs.asm.commons)
     implementation(libs.dsljson)
 }
 
@@ -42,7 +43,7 @@ tasks.shadowJar {
 
     manifest {
         attributes(
-            "Main-Class" to "zombie.gameStates.MainScreenState",
+            "Premain-Class" to "dev.aoqia.leaf.proxy.Main",
             "Implementation-Version" to project.version,
             "Enable-Native-Access" to "ALL-UNNAMED"
         )

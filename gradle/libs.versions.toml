@@ -1,8 +1,11 @@
 [versions]
+asm = "9.10.1"
 dsljson = "2.0.2"
 shadow = "8.3.5"
 
 [libraries]
+asm-commons = { module = "org.ow2.asm:asm-commons", version.ref = "asm" }
+
 dsljson = { module = "com.dslplatform:dsl-json", version.ref = "dsljson" }
 
 [plugins]

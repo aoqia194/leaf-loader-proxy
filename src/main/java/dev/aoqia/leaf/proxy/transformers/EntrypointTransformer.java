@@ -1,0 +1,41 @@
+package dev.aoqia.leaf.proxy.transformers;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.instrument.ClassFileTransformer;
+import java.lang.instrument.Instrumentation;
+import java.security.ProtectionDomain;
+
+import dev.aoqia.leaf.proxy.Constants;
+import dev.aoqia.leaf.proxy.Main;
+import dev.aoqia.leaf.proxy.Utils;
+import dev.aoqia.leaf.proxy.entrypoints.ClientEntrypoint;
+
+public class EntrypointTransformer implements ClassFileTransformer {
+    private final Instrumentation inst;
+
+    public EntrypointTransformer(Instrumentation inst) {
+        this.inst = inst;
+    }
+
+    @Override
+    public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
+        ProtectionDomain protectionDomain, byte[] classfileBuffer) {
+        final String entrypointClass = ClientEntrypoint.class.getName().replace('.', '/') + ".class";
+        byte[] entrypointClassBytes;
+        try (final InputStream is = Main.class.getClassLoader().getResourceAsStream(entrypointClass)) {
+            assert is != null;
+            entrypointClassBytes = is.readAllBytes();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        final String entrypoint = Utils.internalName(Constants.CLIENT_ENTRYPOINT);
+        if (entrypoint.equals(className)) {
+            inst.removeTransformer(this);
+            return Utils.remapClass(entrypointClassBytes, entrypoint);
+        }
+
+        return null;
+    }
+}

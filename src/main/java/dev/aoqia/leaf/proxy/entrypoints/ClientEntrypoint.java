@@ -1,0 +1,157 @@
+package dev.aoqia.leaf.proxy.entrypoints;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.Objects;
+
+import com.dslplatform.json.DslJson;
+import com.dslplatform.json.runtime.Settings;
+
+import dev.aoqia.leaf.proxy.Constants;
+import dev.aoqia.leaf.proxy.Utils;
+import dev.aoqia.leaf.proxy.json.InstallerJson;
+
+import static dev.aoqia.leaf.proxy.Utils.log;
+
+public class ClientEntrypoint {
+    private static final DslJson<Object> JSON = new DslJson<>(Settings.basicSetup());
+
+    static void main(final String[] args) throws Exception {
+        final File proxyJar = getProxyJarPath();
+        Utils.initLog(proxyJar.getParentFile());
+        log("Initialised logging for leaf-loader-proxy.");
+
+        // Remove the proxy jar from the classpath ASAP
+        Utils.removeFromClasspath(s -> s.endsWith(proxyJar.getName()));
+
+        if (System.getProperty(Constants.Properties.LEAF_DISABLED) != null) {
+            log("Leaf was disabled, loading vanilla jar...");
+            loadVanillaJar(args, proxyJar);
+            return;
+        }
+
+        final File gameJar = proxyJar.toPath().getParent().resolve("projectzomboid.jar").toFile();
+
+        // If there's a better way to not hardcode this ID...
+        final File[] loaderJars = getLoaderJars(proxyJar, "3776625738");
+        if (loaderJars == null) {
+            Utils.closeLog();
+            return;
+        }
+
+        final URL[] urls = new URL[loaderJars.length + 1];
+        for (int i = 0; i < loaderJars.length; ++i) {
+            urls[i] = loaderJars[i].toURI().toURL();
+        }
+        urls[urls.length - 1] = gameJar.toURI().toURL();
+
+        Utils.addToClasspath(Arrays.stream(urls).map(url -> {
+            try {
+                return new File(url.toURI()).getAbsolutePath();
+            } catch (URISyntaxException e) {
+                throw new RuntimeException(e);
+            }
+        }).toArray(String[]::new));
+        log("Classpath is currently: " + System.getProperty(Constants.Properties.CLASS_PATH));
+
+        try (final URLClassLoader cl = new URLClassLoader(urls, null)) {
+            log("Classloader was created successfully.");
+
+            final Class<?> entrypoint = Class.forName(getLoaderEntrypoint(cl), true, cl);
+            final Method entryMethod = entrypoint.getMethod("main", String[].class);
+
+            log("Invoking loader entrypoint, have fun!");
+            try {
+                entryMethod.invoke(null, (Object) args);
+            } catch (InvocationTargetException e) {
+                Throwable cause = e.getCause();
+                log("Failed on thread " + Thread.currentThread().getName()
+                    + " with TCCL " + Thread.currentThread().getContextClassLoader());
+                cause.printStackTrace();
+                throw e;
+            }
+        }
+    }
+
+    private static File getProxyJarPath() throws URISyntaxException {
+        return new File(ClientEntrypoint.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+    }
+
+    private static File[] getLoaderJars(final File proxyJar, final String workshopId) {
+        log("Attempting to get loader jars...");
+
+        final Path workshopPath = getWorkshopPath(proxyJar);
+        final Path modPath = workshopPath.resolve(workshopId, "mods", "LeafLoader");
+
+        final Path jarDir = modPath.resolve("common", "media", "java");
+        final File[] jars = jarDir
+            .toFile()
+            .listFiles((_, name) -> name.endsWith(".jar") && !name.endsWith("-sources.jar"));
+
+        if (jars == null || jars.length == 0) {
+            log("Loader JAR doesn't exist in the workshop mod, exiting game.");
+            return null;
+        }
+
+        return jars;
+    }
+
+    private static Path getWorkshopPath(final File proxyJar) {
+        Path gamePath = proxyJar.toPath().getParent();
+        if ("projectzomboid".equals(gamePath.getFileName().toString())) {
+            gamePath = gamePath.getParent();
+        }
+
+        return gamePath.getParent().getParent().resolve("workshop", "content", "108600");
+    }
+
+    private static String getLoaderEntrypoint(final URLClassLoader cl) throws IOException {
+        byte[] jsonBytes;
+        try (InputStream is = cl.getResourceAsStream("leaf-installer.json")) {
+            if (is == null) {
+                log("leaf-installer.json doesn't exist in the loader JAR!");
+                return null;
+            }
+
+            jsonBytes = is.readAllBytes();
+        }
+
+        final InstallerJson installerJson = JSON.deserialize(InstallerJson.class, jsonBytes, jsonBytes.length);
+        return Objects.requireNonNull(installerJson).mainClass().client();
+    }
+
+    private static void loadVanillaJar(final String[] args, final File proxyJar) throws IOException,
+        ClassNotFoundException, NoSuchMethodException, IllegalAccessException {
+        final File loaderJar = proxyJar.toPath().getParent().resolve("projectzomboid.jar").toFile();
+        Utils.addToClasspath(loaderJar.getAbsolutePath());
+        log("Classpath is currently: " + System.getProperty(Constants.Properties.CLASS_PATH));
+
+        final URL[] urls = new URL[] { loaderJar.toURI().toURL() };
+        try (final URLClassLoader cl = new URLClassLoader(urls, ClassLoader.getPlatformClassLoader())) {
+            log("Classloader was created successfully.");
+
+            final Class<?> entrypoint = Class.forName(Constants.CLIENT_ENTRYPOINT, true, cl);
+            final Method entryMethod = entrypoint.getMethod("main", String[].class);
+
+            log("Invoking game entrypoint, have fun!");
+
+            Thread.currentThread().setContextClassLoader(cl);
+            entryMethod.invoke(null, (Object) args);
+        } catch (InvocationTargetException e) {
+            Throwable cause = e.getCause();
+            log("Failed on thread " + Thread.currentThread().getName()
+                + " with TCCL " + Thread.currentThread().getContextClassLoader());
+            log("Cause: " + cause);
+            cause.printStackTrace();
+            throw new RuntimeException(e);
+        }
+    }
+}
