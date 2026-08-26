@@ -1,7 +1,7 @@
 [versions]
 asm = "9.10.1"
 dsljson = "2.0.2"
-shadow = "8.3.5"
+shadow = "9.6.1"
 
 [libraries]
 asm-commons = { module = "org.ow2.asm:asm-commons", version.ref = "asm" }
