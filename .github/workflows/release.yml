@@ -54,8 +54,8 @@ jobs:
         id: cliff
         uses: orhun/git-cliff-action@v4
         with:
-          config: .cliff.toml
-          args: --latest --strip header
+          config: ".cliff.toml"
+          args: --latest -v
         env:
           GITHUB_REPO: ${{ github.repository }}
       - name: Create GitHub Release
