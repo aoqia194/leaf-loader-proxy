@@ -22,7 +22,7 @@ If you want to install it purely for testing in-dev, you can run the `copyToGame
 The installer will help you with the following, but if you wish, you can do it manually:
 
 The proxy jar should be placed alongside `projectzomboid.jar` in the game folder.
-To actually get the game to use the proxy, you need to add `-javaagent:loader-proxy:0.1.0.jar` to the game's launch options.
+To actually get the game to use the proxy, you need to add `-javaagent:loader-proxy:0.1.1.jar` to the game's launch options.
 
 If you need help with this, you should read [Startup Parameters](https://pzwiki.net/wiki/Startup_parameters).
 
