@@ -86,67 +86,69 @@ tasks.register<Copy>("copyToGame") {
 }
 
 publishing {
-    publications.withType<MavenPublication>().configureEach {
-        pom {
-            name = rootProject.name
-            group = rootProject.group
-            description = rootProject.description
-            url = property("url").toString()
-            inceptionYear = "2026"
-
-            developers {
-                developer {
-                    id = "aoqia"
-                    name = "aoqia"
-                    email = "aoqia@aoqia.dev"
-                }
-            }
-
-            issueManagement {
-                system = "GitHub"
-                url = "${property("url").toString()}/issues"
-            }
-
-            licenses {
-                license {
-                    name = "MIT"
-                    url = "https://spdx.org/licenses/MIT.html"
-                }
-            }
-
-            scm {
-                connection = "scm:git:${property("url").toString()}.git"
-                developerConnection = "scm:git:${property("url").toString().replace("https", "ssh")}.git"
+    publications {
+        create<MavenPublication>("maven") {
+            pom {
+                name = rootProject.name
+                group = rootProject.group
+                description = rootProject.description
                 url = property("url").toString()
+                inceptionYear = "2026"
+
+                developers {
+                    developer {
+                        id = "aoqia"
+                        name = "aoqia"
+                        email = "aoqia@aoqia.dev"
+                    }
+                }
+
+                issueManagement {
+                    system = "GitHub"
+                    url = "${property("url").toString()}/issues"
+                }
+
+                licenses {
+                    license {
+                        name = "MIT"
+                        url = "https://spdx.org/licenses/MIT.html"
+                    }
+                }
+
+                scm {
+                    connection = "scm:git:${property("url").toString()}.git"
+                    developerConnection = "scm:git:${property("url").toString().replace("https", "ssh")}.git"
+                    url = property("url").toString()
+                }
+            }
+        }
+
+        repositories {
+            maven {
+                name = "leaf"
+                url = uri("https://maven.aoqia.dev/${if (isSnapshot) "snapshots" else "releases"}")
+
+                credentials {
+                    username = providers.gradleProperty("mavenUsername").orNull
+                    password = providers.gradleProperty("mavenPassword").orNull
+                }
+
+                authentication {
+                    create<BasicAuthentication>("basic")
+                }
             }
         }
     }
 
-    repositories {
-        maven {
-            name = "leaf"
-            url = uri("https://maven.aoqia.dev/${if (isSnapshot) "snapshots" else "releases"}")
+    signing {
+        isRequired = isCiBuild and !isSnapshot
 
-            credentials {
-                username = providers.gradleProperty("mavenUsername").orNull
-                password = providers.gradleProperty("mavenPassword").orNull
-            }
-
-            authentication {
-                create<BasicAuthentication>("basic")
-            }
+        val signingKey = providers.gradleProperty("signingKey")
+        val signingPassword = providers.gradleProperty("signingPassword")
+        if (signingKey.isPresent && signingPassword.isPresent) {
+            useInMemoryPgpKeys(signingKey.get(), signingPassword.get())
         }
+
+        sign(publishing.publications)
     }
-}
-
-signing {
-    isRequired = isCiBuild and !isSnapshot
-
-    val signingKey = providers.gradleProperty("signingKey")
-    val signingPassword = providers.gradleProperty("signingPassword")
-    if (signingKey.isPresent && signingPassword.isPresent) {
-        useInMemoryPgpKeys(signingKey.get(), signingPassword.get())
-    }
-
-    sign(publishing.publications)
 }
