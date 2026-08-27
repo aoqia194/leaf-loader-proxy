@@ -92,7 +92,7 @@ publishing {
             artifactId = project.name
             version = project.version.toString()
 
-            artifact(tasks.shadowJar)
+            from(components["shadow"])
 
             pom {
                 name = rootProject.name
