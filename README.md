@@ -1,7 +1,5 @@
 <div align="center">
 
-## Leaf Loader Proxy
-
 **A loader that loads [leaf-loader](https://github.com/aoqia194/leaf-loader) from the Workshop. Ironic?!**
 
 ![Gradle Version](https://img.shields.io/badge/Gradle-9.7.1-teal?logo=gradle)
