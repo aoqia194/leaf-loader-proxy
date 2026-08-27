@@ -88,6 +88,12 @@ tasks.register<Copy>("copyToGame") {
 publishing {
     publications {
         create<MavenPublication>("maven") {
+            groupId = project.group.toString()
+            artifactId = project.name
+            version = project.version.toString()
+
+            artifact(tasks.shadowJar)
+
             pom {
                 name = rootProject.name
                 group = rootProject.group
