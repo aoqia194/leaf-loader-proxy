@@ -34,7 +34,7 @@ jobs:
       # If this isn't a snapshot release, publish a snapshot release so that they are both up-to-date.
       - name: Sync Snapshot
         if: ${{ !github.event.inputs.is_snapshot }}
-        run: ./gradlew build publish -S
+        run: ./gradlew publish -S
         env:
           ORG_GRADLE_PROJECT_signingKey: ${{ secrets.GPG_PRIVATE_KEY }}
           ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.GPG_PASSPHRASE_KEY }}
@@ -42,7 +42,7 @@ jobs:
           ORG_GRADLE_PROJECT_mavenPassword: ${{ secrets.MAVEN_PASSWORD }}
           ORG_GRADLE_PROJECT_isSnapshot: true
       - name: Release
-        run: ./gradlew build publish -S
+        run: ./gradlew publish -S
         env:
           ORG_GRADLE_PROJECT_signingKey: ${{ secrets.GPG_PRIVATE_KEY }}
           ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.GPG_PASSPHRASE_KEY }}
@@ -50,7 +50,7 @@ jobs:
           ORG_GRADLE_PROJECT_mavenPassword: ${{ secrets.MAVEN_PASSWORD }}
           ORG_GRADLE_PROJECT_isSnapshot: ${{ github.event.inputs.is_snapshot || false }}
       - name: Generate Changelog
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+        if: ${{ !github.event.inputs.is_snapshot }}
         id: cliff
         uses: orhun/git-cliff-action@v4
         with:
@@ -59,11 +59,10 @@ jobs:
         env:
           GITHUB_REPO: ${{ github.repository }}
       - name: Create GitHub Release
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+        if: ${{ !github.event.inputs.is_snapshot }}
         uses: softprops/action-gh-release@v3
         with:
           fail_on_unmatched_files: true
           files: |
-            build/libs/*.jar*
-            !build/libs/*SNAPSHOT*
+            build/libs/!(*-SNAPSHOT|*-sources|*-javadoc).jar*
           body: ${{ steps.cliff.outputs.content }}
