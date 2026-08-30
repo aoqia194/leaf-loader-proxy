@@ -93,6 +93,7 @@ publishing {
             version = project.version.toString()
 
             from(components["shadow"])
+            artifact(tasks.named("sourcesJar"))
 
             pom {
                 name = rootProject.name
