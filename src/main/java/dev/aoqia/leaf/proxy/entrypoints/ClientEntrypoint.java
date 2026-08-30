@@ -66,10 +66,9 @@ public class ClientEntrypoint {
             try {
                 entryMethod.invoke(null, (Object) args);
             } catch (InvocationTargetException e) {
-                Throwable cause = e.getCause();
-                log("Failed on thread " + Thread.currentThread().getName()
-                    + " with TCCL " + Thread.currentThread().getContextClassLoader());
-                cause.printStackTrace();
+                log("Failed on thread " + Thread.currentThread().getName() + " with TCCL "
+                    + Thread.currentThread().getContextClassLoader());
+                log(e);
                 throw e;
             }
         }
