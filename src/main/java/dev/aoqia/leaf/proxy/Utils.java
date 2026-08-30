@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,7 +17,7 @@ import org.objectweb.asm.commons.ClassRemapper;
 import org.objectweb.asm.commons.SimpleRemapper;
 
 public class Utils {
-    private static BufferedWriter LOG;
+    private static PrintWriter LOG;
 
     public static void initLog(final File gameDir) throws IOException {
         File leafDir = new File(gameDir, ".leaf/");
@@ -25,7 +26,7 @@ public class Utils {
         }
 
         File logFile = new File(leafDir, "proxy.log");
-        LOG = new BufferedWriter(new FileWriter(logFile, false));
+        LOG = new PrintWriter(new BufferedWriter(new FileWriter(logFile, false)));
     }
 
     public static void closeLog() {
@@ -33,22 +34,18 @@ public class Utils {
             return;
         }
 
-        try {
-            LOG.close();
-            LOG = null;
-        } catch (IOException ignored) {
-        }
+        LOG.close();
+        LOG = null;
     }
 
     public static void log(final String s) {
         System.out.println(s);
-        try {
-            LOG.write(s);
-            LOG.newLine();
-            // Flush every time just in case of crashes
-            LOG.flush();
-        } catch (IOException ignored) {
-        }
+        LOG.println(s);
+    }
+
+    public static void log(final Exception e) {
+        e.printStackTrace(System.err);
+        e.printStackTrace(LOG);
     }
 
     public static byte[] remapClass(final byte[] originalBytes, final String newInternalName) {
