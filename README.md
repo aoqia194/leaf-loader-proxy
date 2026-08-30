@@ -2,19 +2,28 @@
 
 **A loader that loads [leaf-loader](https://github.com/aoqia194/leaf-loader) from the Workshop. Ironic?!**
 
-![Gradle Version](https://img.shields.io/badge/Gradle-9.7.1-teal?logo=gradle)
-![License](https://img.shields.io/badge/License-MIT-orange)
-![Build Status](https://github.com/aoqia194/leaf-loader-proxy/actions/workflows/build.yml/badge.svg?branch=main)
+![License](https://img.shields.io/github/license/aoqia194/leaf-loader-proxy?label=License)
+![Gradle version](https://img.shields.io/badge/Gradle-9.7.1-teal?logo=gradle)
+![Build status](https://github.com/aoqia194/leaf-loader-proxy/actions/workflows/build.yml/badge.svg?branch=main&label=build)
+![Downloads](https://img.shields.io/github/downloads/aoqia194/leaf-loader-proxy/total?label=Downloads)
+![Code Size](https://img.shields.io/github/languages/code-size/aoqia194/leaf-loader-proxy?label=Code%20Size)
+![Maven status](https://img.shields.io/website?url=https%3A%2F%2Fmaven.aoqia.dev%2F&label=Maven)
 
 </div>
 
+The purpose of the proxy is to load the loader. Essentially, it discovers the loader JAR and all of its dependencies
+from the [leaf-loader][1] Workshop mod and will load them instead of the game directly.
+
+It allows for one major thing to happen: the loader is able to load dynamically, allowing for automatic loader updates
+directly from the workshop. This provides the most convenience and ease-of-use as compared to manual installation.
+
 ### Requirements
 
-- Java 25
+- Java 25 or higher
 
 ### Installation
 
-To install the proxy, you should be using [leaf-installer](https://github.com/aoqia194/leaf-installer).
+To install the proxy, you should be using [leaf-installer][2].
 If you want to install it purely for testing in-dev, you can run the `copyToGame` Gradle task.
 
 ### Usage
@@ -22,9 +31,9 @@ If you want to install it purely for testing in-dev, you can run the `copyToGame
 The installer will help you with the following, but if you wish, you can do it manually:
 
 The proxy jar should be placed alongside `projectzomboid.jar` in the game folder.
-To actually get the game to use the proxy, you need to add `-javaagent:loader-proxy:0.1.1.jar` to the game's launch options.
+To actually get the game to use the proxy, you need to add `-javaagent:loader-proxy:0.1.2.jar` to the game's launch options.
 
-If you need help with this, you should read [Startup Parameters](https://pzwiki.net/wiki/Startup_parameters).
+If you need help with this, you should read [Startup Parameters][3].
 
 ### Configuration
 
@@ -38,3 +47,6 @@ You can build the project like so:
 ```shell
 ./gradlew build
 ```
+[1]: https://steamcommunity.com/sharedfiles/filedetails/?id=3776625738
+[2]: https://github.com/aoqia194/leaf-installer
+[3]: https://pzwiki.net/wiki/Startup_parameters
