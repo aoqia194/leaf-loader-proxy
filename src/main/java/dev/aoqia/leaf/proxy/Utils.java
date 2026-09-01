@@ -26,7 +26,7 @@ public class Utils {
         }
 
         File logFile = new File(leafDir, "proxy.log");
-        LOG = new PrintWriter(new BufferedWriter(new FileWriter(logFile, false)));
+        LOG = new PrintWriter(new BufferedWriter(new FileWriter(logFile, false)), true);
     }
 
     public static void closeLog() {
