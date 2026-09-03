@@ -20,7 +20,7 @@ public class EntrypointTransformer implements ClassFileTransformer {
 
     @Override
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
-        ProtectionDomain protectionDomain, byte[] classfileBuffer) {
+        ProtectionDomain protectionDomain, byte[] classFileBuffer) {
         final String entrypointClass = ClientEntrypoint.class.getName().replace('.', '/') + ".class";
         byte[] entrypointClassBytes;
         try (final InputStream is = Main.class.getClassLoader().getResourceAsStream(entrypointClass)) {
