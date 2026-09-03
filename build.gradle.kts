@@ -70,19 +70,16 @@ tasks.withType<Sign>().configureEach {
 tasks.register<Copy>("copyToGame") {
     description = "Copies the JAR to the game to simulate production."
 
-    from(tasks.shadowJar.flatMap { it.archiveFile })
-
-    doLast {
-        val path: String = if (Os.isFamily(Os.FAMILY_UNIX)) {
-            "projectzomboid"
-        } else if (Os.isFamily(Os.FAMILY_MAC)) {
-            "Contents/Java"
-        } else {
-            ""
-        }
-
-        into(providers.environmentVariable("LEAF_CLIENT_GAME_PATH").map { "$it/$path" })
+    val path: String = if (Os.isFamily(Os.FAMILY_UNIX)) {
+        "projectzomboid"
+    } else if (Os.isFamily(Os.FAMILY_MAC)) {
+        "Contents/Java"
+    } else {
+        ""
     }
+
+    from(tasks.shadowJar.flatMap { it.archiveFile })
+    into(providers.environmentVariable("LEAF_CLIENT_GAME_PATH").map { "$it/$path" })
 }
 
 publishing {
