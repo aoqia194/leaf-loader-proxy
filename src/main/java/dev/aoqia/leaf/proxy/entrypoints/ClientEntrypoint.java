@@ -56,7 +56,7 @@ public class ClientEntrypoint {
         }).toArray(String[]::new));
         log("Classpath is currently: " + System.getProperty(Constants.Properties.CLASS_PATH));
 
-        try (final URLClassLoader cl = new URLClassLoader(urls, null)) {
+        try (final URLClassLoader cl = new URLClassLoader(urls, ClientEntrypoint.class.getClassLoader().getParent())) {
             log("Classloader was created successfully.");
 
             final Class<?> entrypoint = Class.forName(getLoaderEntrypoint(cl), true, cl);
