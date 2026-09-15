@@ -30,9 +30,9 @@ public class EntrypointTransformer implements ClassFileTransformer {
             throw new RuntimeException(e);
         }
 
+        // TODO: Differentiate between client and server?
         final String entrypoint = Utils.internalName(Constants.CLIENT_ENTRYPOINT);
-        if (entrypoint.equals(className)) {
-            inst.removeTransformer(this);
+        if (entrypoint.equals(className) && inst.removeTransformer(this)) {
             return Utils.remapClass(entrypointClassBytes, entrypoint);
         }
 
