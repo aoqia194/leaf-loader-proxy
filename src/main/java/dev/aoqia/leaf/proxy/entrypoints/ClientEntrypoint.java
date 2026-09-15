@@ -83,10 +83,15 @@ public class ClientEntrypoint {
     private static File[] getLoaderJars(final File proxyJar, final String workshopId) {
         log("Attempting to get loader jars...");
 
-        final Path workshopPath = getWorkshopPath(proxyJar);
-        final Path modPath = workshopPath.resolve(workshopId, "mods", "LeafLoader");
+        final Path jarDir;
+        if (Main.args.containsKey("loaderPath")) {
+            jarDir = Path.of(Main.args.get("loaderPath"));
+        } else {
+            final Path workshopPath = getWorkshopPath(proxyJar);
+            final Path modPath = workshopPath.resolve(workshopId, "mods", "LeafLoader");
+            jarDir = modPath.resolve("common", "media", "java");
+        }
 
-        final Path jarDir = modPath.resolve("common", "media", "java");
         final File[] jars = jarDir
             .toFile()
             .listFiles((_, name) -> name.endsWith(".jar") && !name.endsWith("-sources.jar"));
