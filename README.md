@@ -31,7 +31,8 @@ can run the `copyToGame` Gradle task.
 The installer will help you with the following, but if you wish, you can do it manually:
 
 The proxy jar should be placed alongside `projectzomboid.jar` in the game folder. To actually get the game to use the
-proxy, you need to add `-javaagent:loader-proxy:0.1.2.jar` to the game's launch options.
+proxy, you need to add `-javaagent:loader-proxy:0.2.0.jar` to the game's launch options. The version number in this
+example may not be the same as the version of your installed proxy, so keep that in mind.
 
 If you need help with this, you should read [Startup Parameters][3].
 
