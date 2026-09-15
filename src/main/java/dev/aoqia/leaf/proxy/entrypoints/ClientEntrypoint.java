@@ -16,6 +16,7 @@ import com.dslplatform.json.DslJson;
 import com.dslplatform.json.runtime.Settings;
 
 import dev.aoqia.leaf.proxy.Constants;
+import dev.aoqia.leaf.proxy.Main;
 import dev.aoqia.leaf.proxy.Utils;
 import dev.aoqia.leaf.proxy.json.InstallerJson;
 
@@ -28,6 +29,7 @@ public class ClientEntrypoint {
         final File proxyJar = getProxyJarPath();
         Utils.initLog(proxyJar.getParentFile());
         log("Initialised logging for leaf-loader-proxy.");
+        log("Proxy args: " + Arrays.toString(Main.args.toArray()));
 
         final File gameJar = proxyJar.toPath().getParent().resolve("projectzomboid.jar").toFile();
 
