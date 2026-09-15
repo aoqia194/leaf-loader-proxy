@@ -23,22 +23,26 @@ directly from the workshop. This provides the most convenience and ease-of-use a
 
 ### Installation
 
-To install the proxy, you should be using [leaf-installer][2].
-If you want to install it purely for testing in-dev, you can run the `copyToGame` Gradle task.
+To install the proxy, you should be using [leaf-installer][2]. If you want to install it purely for testing in-dev, you
+can run the `copyToGame` Gradle task.
 
 ### Usage
 
 The installer will help you with the following, but if you wish, you can do it manually:
 
-The proxy jar should be placed alongside `projectzomboid.jar` in the game folder.
-To actually get the game to use the proxy, you need to add `-javaagent:loader-proxy:0.1.2.jar` to the game's launch options.
+The proxy jar should be placed alongside `projectzomboid.jar` in the game folder. To actually get the game to use the
+proxy, you need to add `-javaagent:loader-proxy:0.1.2.jar` to the game's launch options.
 
 If you need help with this, you should read [Startup Parameters][3].
 
 ### Configuration
 
-If you use the `copyToGame` task, you will need to set the `LEAF_CLIENT_GAME_PATH` environment variable to the game root.
-Otherwise, you don't need any external configuration.
+You may want to provide arguments to the proxy. The format for these are `-arg123` for single args and `-key=value` for
+value args. Arguments are separated with a semicolon `;`. The table for all available arguments is below.
+
+| Argument     | Type   | Example                        |
+|--------------|--------|--------------------------------|
+| `loaderPath` | Single | `-loaderPath="path/to/loader"` |
 
 ### Development
 
@@ -47,6 +51,7 @@ You can build the project like so:
 ```shell
 ./gradlew build
 ```
+
 [1]: https://steamcommunity.com/sharedfiles/filedetails/?id=3776625738
 [2]: https://github.com/aoqia194/leaf-installer
 [3]: https://pzwiki.net/wiki/Startup_parameters
